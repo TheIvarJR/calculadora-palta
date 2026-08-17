@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+<title>Calculadora de Palta</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #FAF6EC;
+    --panel: #FFFFFF;
+    --ink: #202B18;
+    --ink-soft: #5B6650;
+    --green-deep: #3F6B35;
+    --green-mid: #6E8F4C;
+    --flesh: #C7DC86;
+    --pit: #7C5430;
+    --frost: #9FC3CB;
+    --citrus: #D9691D;
+    --line: #E1D8BE;
+    --radius: 14px;
+  }
+  * , *::before, *::after { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Public Sans', sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  body { padding: 24px 16px 56px; }
+  .wrap { max-width: 840px; margin: 0 auto; }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--green-deep);
+    font-weight: 600;
+    margin: 0 0 6px;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 30px;
+    line-height: 1.15;
+    margin: 0 0 8px;
+  }
+  .sub { color: var(--ink-soft); font-size: 14.5px; margin: 0 0 24px; max-width: 52ch; }
+
+  /* HERO */
+  .hero {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 18px;
+  }
+  .hero-figure { flex: 0 0 auto; width: 128px; }
+  .hero-figure svg { width: 100%; height: auto; display: block; }
+  .hero-copy { flex: 1; min-width: 0; }
+  .hero-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+    margin: 0 0 4px;
+  }
+  .hero-number {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 38px;
+    line-height: 1;
+    color: var(--citrus);
+    margin: 0 0 6px;
+    word-break: break-word;
+  }
+  .hero-sub { color: var(--ink-soft); font-size: 13px; margin: 0; }
+  .hero-legend { display: flex; gap: 16px; margin-top: 12px; flex-wrap: wrap; }
+  .legend-item {
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; color: var(--ink-soft);
+  }
+  .swatch { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex: none; }
+
+  @media (max-width: 560px) {
+    .hero { flex-direction: column; text-align: center; padding: 20px; }
+    .hero-legend { justify-content: center; }
+    .hero-figure { width: 108px; }
+    h1 { font-size: 25px; }
+    .hero-number { font-size: 32px; }
+  }
+
+  /* TOGGLE */
+  .toggle {
+    display: inline-flex;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px;
+    background: var(--bg);
+    margin-bottom: 18px;
+  }
+  .toggle button {
+    border: none;
+    background: transparent;
+    padding: 9px 20px;
+    font-family: 'Public Sans', sans-serif;
+    font-weight: 600;
+    font-size: 13.5px;
+    border-radius: 999px;
+    cursor: pointer;
+    color: var(--ink-soft);
+    min-height: 40px;
+  }
+  .toggle button.active { background: var(--green-deep); color: #fff; }
+
+  /* CARDS */
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 18px;
+  }
+  .card h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0 0 16px;
+  }
+  .card h2 .h2-note {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+
+  /* UNIFORM FIELD GRID (Tu negocio) */
+  .field-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    align-items: start;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+  }
+  .field label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    min-height: 34px;
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  @media (max-width: 640px) {
+    .field-grid { grid-template-columns: 1fr; }
+    .field label { min-height: 0; align-items: flex-start; }
+  }
+
+  input[type="number"], input[type="text"], select {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-family: 'Public Sans', sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    background: #fff;
+    min-height: 42px;
+  }
+  input:focus, select:focus { outline: 2px solid var(--green-mid); outline-offset: 1px; }
+
+  /* BREAKDOWN */
+  .breakdown-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 560px) { .breakdown-grid { grid-template-columns: 1fr; } }
+  .stat { border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+  .stat .stat-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--ink-soft); margin: 0 0 6px; display: flex; align-items: center; gap: 6px;
+  }
+  .stat .stat-value { font-family: 'Fraunces', serif; font-size: 23px; font-weight: 600; margin: 0; }
+  .stat.fresca { border-color: var(--green-mid); }
+  .stat.congelada { border-color: var(--frost); }
+
+  /* COMPARISON BARS */
+  .compare-list { display: flex; flex-direction: column; gap: 10px; }
+  .compare-row { display: grid; grid-template-columns: 150px 1fr 100px; gap: 12px; align-items: center; }
+  @media (max-width: 560px) {
+    .compare-row { grid-template-columns: 1fr; gap: 4px; }
+    .compare-amount { text-align: left !important; }
+  }
+  .compare-name {
+    font-size: 13.5px; font-weight: 600; color: var(--ink);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .compare-name .tag {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; font-weight: 600;
+    padding: 1px 6px; border-radius: 999px;
+    margin-left: 6px; vertical-align: middle;
+  }
+  .tag.en-uso { background: var(--flesh); color: var(--green-deep); }
+  .tag.congelada { background: #E4EEF0; color: #3E6870; }
+  .compare-track { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; height: 20px; overflow: hidden; }
+  .compare-fill { height: 100%; border-radius: 5px 0 0 5px; }
+  .compare-fill.fresca { background: var(--green-mid); }
+  .compare-fill.congelada { background: var(--frost); }
+  .compare-fill.cheapest { background: var(--citrus); }
+  .compare-amount {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px; text-align: right; color: var(--ink-soft); white-space: nowrap;
+  }
+  .compare-note { font-size: 12.5px; color: var(--ink-soft); margin-top: 14px; line-height: 1.5; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 720px; }
+  th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--ink-soft); text-align: left; font-weight: 600;
+    padding: 8px; border-bottom: 1px solid var(--line); white-space: nowrap;
+  }
+  td { padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  td.col-nombre { min-width: 190px; }
+  td.col-nombre input { min-width: 180px; font-weight: 600; }
+  td input { padding: 7px 9px; font-size: 13px; min-width: 78px; min-height: 36px; }
+  td.computed { font-family: 'IBM Plex Mono', monospace; color: var(--ink-soft); white-space: nowrap; }
+  td.diff-positive { color: var(--green-deep); font-weight: 600; }
+  .in-use-tag {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; font-weight: 600; color: var(--green-deep);
+    background: var(--flesh); padding: 2px 7px; border-radius: 999px;
+    margin-top: 5px; width: fit-content;
+  }
+  .row-actions { display: flex; gap: 6px; }
+  .icon-btn {
+    border: 1px solid var(--line); background: #fff; border-radius: 6px;
+    width: 30px; height: 30px; cursor: pointer; color: var(--ink-soft);
+    font-size: 15px; line-height: 1; display: flex; align-items: center; justify-content: center;
+  }
+  .icon-btn:hover { border-color: var(--citrus); color: var(--citrus); }
+  .add-row-btn {
+    margin-top: 14px; border: 1px dashed var(--green-mid); background: transparent;
+    color: var(--green-deep); font-weight: 600; font-size: 13.5px;
+    padding: 11px 18px; border-radius: 8px; cursor: pointer; min-height: 44px;
+  }
+  .add-row-btn:hover { background: rgba(110,143,76,0.08); }
+  .note { font-size: 12.5px; color: var(--ink-soft); margin-top: 14px; line-height: 1.5; }
+
+  @media (max-width: 640px) {
+    body { padding: 18px 12px 48px; }
+    .card { padding: 18px; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="eyebrow">Calculadora de palta</p>
+    <h1>¿Cuánto te ahorras usando palta congelada?</h1>
+    <p class="sub">Ingresa cuántos sánguches vendes, qué palta usas y cuántos gramos le pones a cada uno. La tabla de abajo la puedes editar con tus propios precios.</p>
+
+    <div class="card">
+      <h2>Tu negocio</h2>
+      <div class="field-grid">
+        <div class="field">
+          <label for="sanguches">¿Cuántos sánguches con palta vendes al mes?</label>
+          <input id="sanguches" type="number" min="0" />
+        </div>
+        <div class="field">
+          <label for="tipo-palta">¿Qué palta usas?</label>
+          <select id="tipo-palta"></select>
+        </div>
+        <div class="field">
+          <label for="gramos">¿Cuántos gramos le pones al sánguche?</label>
+          <input id="gramos" type="number" min="0" />
+        </div>
+      </div>
+    </div>
+
+    <div class="toggle" id="toggle">
+      <button data-periodo="mensual">Mensual</button>
+      <button data-periodo="anual">Anual</button>
+    </div>
+
+    <div class="hero" id="hero"></div>
+
+    <div class="card">
+      <h2>Detalle del gasto</h2>
+      <div class="breakdown-grid" id="breakdown"></div>
+    </div>
+
+    <div class="card">
+      <h2>Comparación entre tipos de palta</h2>
+      <div class="compare-list" id="compare-list"></div>
+      <p class="compare-note">Muestra el gasto total del período usando cada tipo de palta fresca de tu tabla, más la palta congelada (con el precio de la fila en uso). El más barato queda destacado.</p>
+    </div>
+
+    <div class="card">
+      <h2>Tipos de palta y precios <span class="h2-note">(edita libremente)</span></h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Precio calle ($)</th>
+              <th>Formato (g)</th>
+              <th>Merma (%)</th>
+              <th>Precio congelada ($/kg)</th>
+              <th>Kilos reales</th>
+              <th>Valor kilo real</th>
+              <th>Diferencia x kilo</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+      <button class="add-row-btn" id="add-row-btn">+ Agregar tipo de palta</button>
+      <p class="note">Kilos reales = Formato − (Formato × Merma). Valor kilo real = (Precio calle ÷ Kilos reales) × Formato. Diferencia x kilo = Valor kilo real − Precio congelada.</p>
+    </div>
+  </div>
+
+<script>
+  // ---------- state ----------
+  let rows = [
+    { id: "r1", nombre: "Palta Hass Especial", precioCalle: 4200, formatoG: 1000, mermaPct: 40, congelado: 4500 },
+    { id: "r2", nombre: "Palta Hass Primera",  precioCalle: 4000, formatoG: 1000, mermaPct: 40, congelado: 4500 },
+    { id: "r3", nombre: "Palta Hass Segunda",  precioCalle: 3600, formatoG: 1000, mermaPct: 40, congelado: 4500 },
+    { id: "r4", nombre: "Palta Hass Tercera",  precioCalle: 3300, formatoG: 1000, mermaPct: 40, congelado: 4500 },
+  ];
+  let nextId = 5;
+  let selectedId = "r3";
+  let sanguches = 2000;
+  let gramos = 60;
+  let periodo = "anual"; // 'anual' | 'mensual'
+
+  // ---------- helpers ----------
+  function fmtCLP(n) {
+    if (!isFinite(n)) return "$0";
+    return "$" + Math.round(n).toLocaleString("es-CL");
+  }
+  function fmtKg(n) {
+    return n.toLocaleString("es-CL", { maximumFractionDigits: 1 });
+  }
+  function esc(s) {
+    const d = document.createElement("div");
+    d.innerText = s;
+    return d.innerHTML;
+  }
+  function computeRow(r) {
+    const merma = Math.min(Math.max(Number(r.mermaPct) || 0, 0), 99) / 100;
+    const formatoG = Number(r.formatoG) || 0;
+    const precioCalle = Number(r.precioCalle) || 0;
+    const congelado = Number(r.congelado) || 0;
+    const kilosReales = formatoG * (1 - merma);
+    const valorKiloReal = kilosReales > 0 ? (precioCalle / kilosReales) * formatoG : 0;
+    const diferencia = valorKiloReal - congelado;
+    return { ...r, kilosReales, valorKiloReal, diferencia, congelado };
+  }
+  function getComputedRows() { return rows.map(computeRow); }
+  function getSelected() {
+    const cr = getComputedRows();
+    return cr.find((r) => r.id === selectedId) || cr[0];
+  }
+
+  function polarToCartesian(cx, cy, r, angleDeg) {
+    const a = ((angleDeg - 90) * Math.PI) / 180;
+    return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+  }
+  function describeArc(cx, cy, r, startAngle, endAngle) {
+    const start = polarToCartesian(cx, cy, r, endAngle);
+    const end = polarToCartesian(cx, cy, r, startAngle);
+    const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+    return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`;
+  }
+  function avocadoSvg(pct) {
+    const p = Math.max(0, Math.min(100, pct));
+    return `
+    <svg viewBox="0 0 300 320" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <clipPath id="clip-left"><rect x="0" y="0" width="150" height="320" /></clipPath>
+        <clipPath id="clip-right"><rect x="150" y="0" width="150" height="320" /></clipPath>
+        <pattern id="frost" width="10" height="10" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="10" stroke="#8FB8C1" stroke-width="2" />
+        </pattern>
+      </defs>
+      <path d="M150,14 C224,14 262,96 262,176 C262,256 214,300 150,300 C86,300 38,256 38,176 C38,96 76,14 150,14 Z" fill="#3F6B35" />
+      <g clip-path="url(#clip-left)">
+        <path d="M150,34 C214,34 244,102 244,176 C244,244 202,280 150,280 C98,280 56,244 56,176 C56,102 86,34 150,34 Z" fill="#C7DC86" />
+      </g>
+      <g clip-path="url(#clip-right)">
+        <path d="M150,34 C214,34 244,102 244,176 C244,244 202,280 150,280 C98,280 56,244 56,176 C56,102 86,34 150,34 Z" fill="#9FC3CB" />
+        <path d="M150,34 C214,34 244,102 244,176 C244,244 202,280 150,280 C98,280 56,244 56,176 C56,102 86,34 150,34 Z" fill="url(#frost)" opacity="0.5" />
+      </g>
+      <line x1="150" y1="16" x2="150" y2="298" stroke="#2C4A24" stroke-width="2" opacity="0.5" />
+      <circle cx="150" cy="178" r="44" fill="#7C5430" />
+      <circle cx="150" cy="178" r="44" fill="none" stroke="#5E3F22" stroke-width="2" />
+      <path d="${describeArc(150, 178, 34, -90, -90 + (p / 100) * 360)}" fill="none" stroke="#D9691D" stroke-width="6" stroke-linecap="round" />
+      <text x="150" y="183" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="15" font-weight="600" fill="#FAF6EC">${Math.round(p)}%</text>
+      <text x="75" y="312" text-anchor="middle" font-family="'Public Sans', sans-serif" font-size="13" font-weight="600" fill="#3F6B35">Fresca</text>
+      <text x="225" y="312" text-anchor="middle" font-family="'Public Sans', sans-serif" font-size="13" font-weight="600" fill="#4F7B85">Congelada</text>
+    </svg>`;
+  }
+
+  // ---------- render ----------
+  function render() {
+    const computedRows = getComputedRows();
+    const selected = getSelected();
+    const factor = periodo === "anual" ? 12 : 1;
+    const kilosPeriodo = ((Number(sanguches) || 0) * factor * (Number(gramos) || 0)) / 1000;
+    const gastoFresca = selected ? kilosPeriodo * selected.valorKiloReal : 0;
+    const gastoCongelada = selected ? kilosPeriodo * selected.congelado : 0;
+    const ahorro = gastoFresca - gastoCongelada;
+    const ahorroPct = gastoFresca > 0 ? (ahorro / gastoFresca) * 100 : 0;
+
+    // hero
+    document.getElementById("hero").innerHTML = `
+      <div class="hero-figure">${avocadoSvg(ahorroPct)}</div>
+      <div class="hero-copy">
+        <p class="hero-label">Ahorro ${periodo === "anual" ? "anual" : "mensual"} estimado</p>
+        <p class="hero-number">${fmtCLP(ahorro)}</p>
+        <p class="hero-sub">Usando ${selected ? esc(selected.nombre) : "—"} · ${fmtKg(kilosPeriodo)} kilos de palta ${periodo === "anual" ? "al año" : "al mes"}</p>
+        <div class="hero-legend">
+          <span class="legend-item"><span class="swatch" style="background:#6E8F4C"></span>Fresca: ${fmtCLP(gastoFresca)}</span>
+          <span class="legend-item"><span class="swatch" style="background:#9FC3CB"></span>Congelada: ${fmtCLP(gastoCongelada)}</span>
+        </div>
+      </div>`;
+
+    // toggle
+    document.querySelectorAll("#toggle button").forEach((b) => {
+      b.classList.toggle("active", b.dataset.periodo === periodo);
+    });
+
+    // inputs
+    const sanguchesEl = document.getElementById("sanguches");
+    const gramosEl = document.getElementById("gramos");
+    if (document.activeElement !== sanguchesEl) sanguchesEl.value = sanguches;
+    if (document.activeElement !== gramosEl) gramosEl.value = gramos;
+
+    // select
+    const sel = document.getElementById("tipo-palta");
+    sel.innerHTML = computedRows.map((r) => `<option value="${r.id}" ${r.id === selectedId ? "selected" : ""}>${esc(r.nombre)}</option>`).join("");
+
+    // breakdown
+    document.getElementById("breakdown").innerHTML = `
+      <div class="stat fresca">
+        <p class="stat-label"><span class="swatch" style="background:#6E8F4C"></span>Con palta fresca</p>
+        <p class="stat-value">${fmtCLP(gastoFresca)}</p>
+      </div>
+      <div class="stat congelada">
+        <p class="stat-label"><span class="swatch" style="background:#9FC3CB"></span>Con palta congelada</p>
+        <p class="stat-value">${fmtCLP(gastoCongelada)}</p>
+      </div>`;
+
+    // comparison
+    const compareItems = computedRows.map((r) => ({
+      id: r.id, nombre: r.nombre, costo: kilosPeriodo * r.valorKiloReal, tipo: "fresca", enUso: r.id === selectedId,
+    }));
+    compareItems.push({ id: "__congelada__", nombre: "Palta congelada", costo: gastoCongelada, tipo: "congelada", enUso: false });
+    const maxCosto = Math.max(1, ...compareItems.map((c) => c.costo));
+    const minCosto = Math.min(...compareItems.map((c) => c.costo));
+    document.getElementById("compare-list").innerHTML = compareItems
+      .sort((a, b) => a.costo - b.costo)
+      .map((c) => {
+        const isCheapest = c.costo === minCosto;
+        const fillClass = isCheapest ? "cheapest" : c.tipo === "congelada" ? "congelada" : "fresca";
+        const widthPct = Math.max(3, (c.costo / maxCosto) * 100);
+        const tags = [
+          c.enUso ? '<span class="tag en-uso">en uso</span>' : "",
+          c.tipo === "congelada" ? '<span class="tag congelada">congelada</span>' : "",
+        ].join("");
+        return `
+        <div class="compare-row">
+          <div class="compare-name" title="${esc(c.nombre)}">${esc(c.nombre)}${tags}</div>
+          <div class="compare-track"><div class="compare-fill ${fillClass}" style="width:${widthPct}%"></div></div>
+          <div class="compare-amount">${fmtCLP(c.costo)}</div>
+        </div>`;
+      })
+      .join("");
+
+    // table
+    document.getElementById("table-body").innerHTML = computedRows
+      .map(
+        (r) => `
+      <tr data-id="${r.id}">
+        <td class="col-nombre">
+          <input type="text" data-field="nombre" value="${esc(r.nombre)}" />
+          ${r.id === selectedId ? '<span class="in-use-tag">en uso</span>' : ""}
+        </td>
+        <td><input type="text" inputmode="decimal" data-field="precioCalle" value="${r.precioCalle}" /></td>
+        <td><input type="text" inputmode="decimal" data-field="formatoG" value="${r.formatoG}" /></td>
+        <td><input type="text" inputmode="decimal" data-field="mermaPct" value="${r.mermaPct}" /></td>
+        <td><input type="text" inputmode="decimal" data-field="congelado" value="${r.congelado}" /></td>
+        <td class="computed">${fmtKg(r.kilosReales)} g</td>
+        <td class="computed">${fmtCLP(r.valorKiloReal)}</td>
+        <td class="computed ${r.diferencia > 0 ? "diff-positive" : ""}">${fmtCLP(r.diferencia)}</td>
+        <td><div class="row-actions"><button class="icon-btn" data-action="remove" title="Eliminar fila">×</button></div></td>
+      </tr>`
+      )
+      .join("");
+
+    attachListeners();
+  }
+
+  function attachListeners() {
+    document.getElementById("sanguches").oninput = (e) => { sanguches = e.target.value; render(); };
+    document.getElementById("gramos").oninput = (e) => { gramos = e.target.value; render(); };
+    document.getElementById("tipo-palta").onchange = (e) => { selectedId = e.target.value; render(); };
+    document.querySelectorAll("#toggle button").forEach((b) => {
+      b.onclick = () => { periodo = b.dataset.periodo; render(); };
+    });
+    document.getElementById("add-row-btn").onclick = () => {
+      const id = "r" + nextId++;
+      rows.push({ id, nombre: "Nueva palta", precioCalle: 4000, formatoG: 1000, mermaPct: 40, congelado: 4500 });
+      render();
+    };
+    document.querySelectorAll("#table-body tr").forEach((tr) => {
+      const id = tr.dataset.id;
+      tr.querySelectorAll("input[data-field]").forEach((input) => {
+        input.oninput = () => {
+          const field = input.dataset.field;
+          const row = rows.find((r) => r.id === id);
+          if (!row) return;
+          // store the raw typed string as-is; computeRow() coerces to Number when calculating,
+          // so we never reformat the value out from under the user while they're typing
+          row[field] = input.value;
+          // re-render but keep focus + exact caret position on the same field
+          const focusField = field, focusId = id;
+          const caret = input.selectionStart !== null ? input.selectionStart : input.value.length;
+          render();
+          const newInput = document.querySelector(`#table-body tr[data-id="${focusId}"] input[data-field="${focusField}"]`);
+          if (newInput) {
+            newInput.focus();
+            const pos = Math.min(caret, newInput.value.length);
+            newInput.setSelectionRange(pos, pos);
+          }
+        };
+      });
+      const removeBtn = tr.querySelector('[data-action="remove"]');
+      if (removeBtn) {
+        removeBtn.onclick = () => {
+          if (rows.length <= 1) return;
+          rows = rows.filter((r) => r.id !== id);
+          if (selectedId === id) selectedId = rows[0].id;
+          render();
+        };
+      }
+    });
+  }
+
+  render();
+</script>
+</body>
+</html>
